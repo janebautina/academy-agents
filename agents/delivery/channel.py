@@ -71,7 +71,7 @@ Step by step you'll build a company where agents do the work and you make the de
 
 New lessons arrive here at no extra cost. The channel is protected from forwarding — please don't share your access.""",
 }
-RIGHTS = ["can_invite_users", "can_post_messages", "can_edit_messages", "can_change_info", "can_restrict_members"]
+RIGHTS = ["can_invite_users", "can_post_messages", "can_edit_messages", "can_change_info"]  # channels give bots no ban right
 
 
 def channel(lang: str) -> str:
@@ -89,8 +89,12 @@ def check(lang: str) -> list[str]:
 
 def setup(lang: str, photo: Path | None) -> None:
     chat = channel(lang)
-    telegram.call("setChatTitle", chat_id=chat, title=TITLE[lang])
-    telegram.call("setChatDescription", chat_id=chat, description=DESCRIPTION[lang])
+    for method, field, value in [("setChatTitle", "title", TITLE[lang]), ("setChatDescription", "description", DESCRIPTION[lang])]:
+        try:
+            telegram.call(method, chat_id=chat, **{field: value})
+        except telegram.TelegramError as e:
+            if "not modified" not in str(e):  # already set by hand: fine
+                raise
     if photo:
         telegram.upload("setChatPhoto", "photo", photo, chat_id=chat)
     msg = telegram.call("sendMessage", chat_id=chat, text=WELCOME[lang], parse_mode="HTML",

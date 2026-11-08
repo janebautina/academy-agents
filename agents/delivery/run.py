@@ -130,13 +130,21 @@ def revoke(email: str, state: dict) -> None:
     found = [b for b in state.get("buyers", []) if b["email"] == email and not b["revoked"]]
     if not found:
         raise SystemExit(f"Покупателя {email} нет или доступ уже закрыт")
+    removed, manual = False, []
     for b in found:
         telegram.call("revokeChatInviteLink", chat_id=b["channel"], invite_link=b["link"])
         if b.get("user_id"):
-            telegram.call("banChatMember", chat_id=b["channel"], user_id=b["user_id"])
+            try:
+                telegram.call("banChatMember", chat_id=b["channel"], user_id=b["user_id"])
+                removed = True
+            except telegram.TelegramError:  # in channels Telegram may not give a bot the right to remove people
+                manual.append(str(b["user_id"]))
         b["revoked"] = True
     save(state)
-    owner(f"Доступ закрыт: {email} (ссылка отозвана{', человек удалён из канала' if any(b.get('user_id') for b in found) else ''}).")
+    note = ", человек удалён из канала" if removed else ""
+    if manual:
+        note += f". Удалите вручную подписчика с id {', '.join(manual)}: канал › Подписчики"
+    owner(f"Доступ закрыт: {email} (ссылка отозвана{note}).")
     journal.write("Владелец", f"закрыл доступ {masked(email)} (возврат)")
 
 

@@ -34,6 +34,10 @@ class ChannelTest(unittest.TestCase):
     def test_ready_bot_has_no_missing_rights(self):
         self.assertEqual(channel.check("ru"), [])
 
+    def test_channel_admin_without_ban_right_is_ready(self):
+        self.rights["can_restrict_members"] = False
+        self.assertEqual(channel.check("ru"), [])
+
     def test_missing_invite_right_is_reported(self):
         self.rights["can_invite_users"] = False
         self.assertEqual(channel.check("ru"), ["can_invite_users"])

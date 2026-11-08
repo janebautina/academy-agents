@@ -174,6 +174,25 @@ class DeliveryTest(unittest.TestCase):
         self.assertEqual(self.world.sent("revokeChatInviteLink")[0]["invite_link"], "https://t.me/+link1")
         self.assertEqual(self.world.sent("banChatMember")[0]["user_id"], 777)
 
+    def test_refund_without_ban_right_asks_the_owner(self):
+        self.world.donations = [donation(19, "КУРС noban@mail.ru", minutes_ago=-1)]
+        delivery.main()
+        self.world.updates = [{"update_id": 7, "chat_member": {
+            "new_chat_member": {"status": "member", "user": {"id": 555, "first_name": "Petr"}},
+            "invite_link": {"invite_link": "https://t.me/+link1", "name": "donation 19"}}}]
+        delivery.main()
+        real = self.world.tg
+
+        def no_ban(method, **params):
+            if method == "banChatMember":
+                raise telegram.TelegramError("not enough rights")
+            return real(method, **params)
+
+        with mock.patch.object(telegram, "_call", no_ban), mock.patch("sys.argv", ["run", "--revoke", "noban@mail.ru"]):
+            delivery.main()
+        self.assertTrue(json.loads(self.state.read_text())["buyers"][0]["revoked"])
+        self.assertTrue(any("555" in m for m in self.owner_messages()))
+
     def test_stranger_in_the_channel_is_reported(self):
         self.world.updates = [{"update_id": 6, "chat_member": {
             "new_chat_member": {"status": "member", "user": {"id": 999, "first_name": "Nobody"}}, "invite_link": None}}]
