@@ -1,9 +1,10 @@
 """Read donations from DonationAlerts and decide which ones are course purchases.
 
-A purchase is a donation whose message has the word КУРС / COURSE, an email address,
-and an amount at or above the course price in its currency (COURSE_PRICES in .env,
-default "RUB:2990,USD:49,EUR:45"). Everything else on the page is an ordinary
-stream donation and is left alone.
+A donation is about the course when its message has an email address (the payment page asks
+buyers to write their email) or the word КУРС / COURSE. It is delivered automatically when it
+has an email and an amount at or above the course price in its currency (COURSE_PRICES in .env,
+default "RUB:2990,USD:49,EUR:45"). A donation with neither is an ordinary stream donation and
+is left alone.
 """
 from __future__ import annotations
 
@@ -42,9 +43,9 @@ def prices() -> dict[str, float]:
 def parse(d: dict) -> Purchase | None:
     """One DonationAlerts donation → a Purchase, or None if it is not about the course."""
     message = d.get("message") or ""
-    if not KEYWORD.search(message):
-        return None
     email = EMAIL.search(message)
+    if not email and not KEYWORD.search(message):
+        return None
     currency = (d.get("currency") or "").upper()
     amount = float(d.get("amount") or 0)
     price = prices().get(currency)

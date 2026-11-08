@@ -4,8 +4,8 @@
     python3 -m agents.delivery.run --dry-run        # show what it would do, send nothing
     python3 -m agents.delivery.run --revoke EMAIL   # refund: close the link and remove the buyer
 
-Rules (from the charter): it delivers on its own only when the message has КУРС/COURSE, an email
-and the full price. Anything else — no email, too little, a second payment — goes to the owner.
+Rules (from the charter): it delivers on its own only when the message has an email and the full
+price. Anything else — no email, too little, a second payment — goes to the owner.
 Each link lets in one person and expires in 7 days; the bot notes who joined with which link,
 so a refund removes exactly that person.
 
@@ -62,7 +62,7 @@ def deliver(p: donations.Purchase, state: dict, dry: bool) -> None:
               f"Найдите покупателя и выдайте доступ вручную.")
         return
     if not p.paid_enough:
-        owner(f"КУРС, но сумма меньше цены: {p.name}, {p.amount:g} {p.currency}, {p.email}. Решите сами.")
+        owner(f"Донат с email, но сумма меньше цены курса: {p.name}, {p.amount:g} {p.currency}, {p.email}. Решите сами.")
         return
     channel = env.get(f"COURSE_CHANNEL_{p.lang.upper()}")
     if not channel:

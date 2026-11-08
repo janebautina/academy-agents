@@ -31,6 +31,10 @@ class ParseTest(unittest.TestCase):
         self.assertIsNotNone(donations.parse(donation(1, "оплата за курс, почта: A.B@Mail.Ru.")))
         self.assertEqual(donations.parse(donation(1, "Курс: a.b@mail.ru.")).email, "a.b@mail.ru")
 
+    def test_email_alone_is_a_purchase(self):
+        p = donations.parse(donation(1, "maria.ivanova@gmail.com"))
+        self.assertEqual((p.email, p.paid_enough), ("maria.ivanova@gmail.com", True))
+
     def test_course_payment_en(self):
         p = donations.parse(donation(1, "COURSE jane@example.com", amount=49, currency="USD"))
         self.assertEqual((p.lang, p.paid_enough), ("en", True))
@@ -122,6 +126,17 @@ class DeliveryTest(unittest.TestCase):
         delivery.main()
         self.assertEqual(len(self.world.mails), 1)
         self.assertEqual(len(self.world.sent("createChatInviteLink")), 1)
+
+    def test_payment_with_only_an_email_is_delivered(self):
+        self.world.donations = [donation(17, "Спасибо! anna@yandex.ru", minutes_ago=-1)]
+        delivery.main()
+        self.assertEqual(self.world.mails[0][0], "anna@yandex.ru")
+
+    def test_small_donation_with_email_goes_to_the_owner(self):
+        self.world.donations = [donation(18, "anna@yandex.ru", amount=100, minutes_ago=-1)]
+        delivery.main()
+        self.assertEqual(self.world.mails, [])
+        self.assertTrue(any("меньше цены" in m for m in self.owner_messages()))
 
     def test_stream_donations_are_ignored(self):
         self.world.donations = [donation(11, "спасибо за стрим!", minutes_ago=-1)]
