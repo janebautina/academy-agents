@@ -4,6 +4,7 @@
     python3 -m agents.delivery.channel --setup ru --photo cover.jpg
     python3 -m agents.delivery.channel --post ru lesson.mp4 "Урок 1 · Устав и секретарь"
     python3 -m agents.delivery.channel --file ru template.xlsx "Шаблон устава"
+    python3 -m agents.delivery.channel --replace ru 6 lesson-v2.mp4 "Урок 1 · …"   # new video in post 6
 
 Everything the bot posts is sent with protect_content: members cannot forward or save it.
 Turn on «Restrict saving content» in the channel settings as well (Telegram app › channel ›
@@ -103,12 +104,25 @@ def setup(lang: str, photo: Path | None) -> None:
     print(f"Канал оформлен: «{TITLE[lang]}», приветствие закреплено.")
 
 
-def post(lang: str, video: Path, caption: str) -> None:
+def _check_size(video: Path) -> None:
     if video.stat().st_size > 50 * 1024 * 1024:
         raise SystemExit("Видео больше 50 МБ — Bot API его не примет. Сожмите или загрузите вручную.")
-    telegram.upload("sendVideo", "video", video, chat_id=channel(lang), caption=caption, parse_mode="HTML",
-                    supports_streaming=True, protect_content=True)
-    print(f"Опубликовано: {caption}")
+
+
+def post(lang: str, video: Path, caption: str) -> None:
+    _check_size(video)
+    answer = telegram.upload("sendVideo", "video", video, chat_id=channel(lang), caption=caption, parse_mode="HTML",
+                             supports_streaming=True, protect_content=True)
+    msg_id = (answer or {}).get("result", {}).get("message_id")
+    print(f"Опубликовано (сообщение {msg_id}): {caption}")
+
+
+def replace(lang: str, message_id: int, video: Path, caption: str) -> None:
+    """Put a new version of a lesson video into an existing post (the post, its place and views stay)."""
+    _check_size(video)
+    media = {"type": "video", "media": "attach://video", "caption": caption, "parse_mode": "HTML", "supports_streaming": True}
+    telegram.upload("editMessageMedia", "video", video, chat_id=channel(lang), message_id=message_id, media=media)
+    print(f"Видео в сообщении {message_id} заменено: {caption}")
 
 
 def post_file(lang: str, path: Path, caption: str) -> None:
@@ -127,6 +141,8 @@ def main() -> None:
         setup(a[1], Path(a[a.index("--photo") + 1]) if "--photo" in a else None)
     elif a[:1] == ["--post"] and len(a) == 4:
         post(a[1], Path(a[2]), a[3])
+    elif a[:1] == ["--replace"] and len(a) == 5:
+        replace(a[1], int(a[2]), Path(a[3]), a[4])
     elif a[:1] == ["--file"] and len(a) == 4:
         post_file(a[1], Path(a[2]), a[3])
     else:

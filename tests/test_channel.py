@@ -64,6 +64,15 @@ class ChannelTest(unittest.TestCase):
         self.assertEqual(method, "sendVideo")
         self.assertTrue(kw["protect_content"])
 
+    def test_replace_puts_a_new_video_into_the_same_post(self):
+        with tempfile.NamedTemporaryFile(suffix=".mp4") as f:
+            f.write(b"0" * 1024)
+            f.flush()
+            channel.replace("ru", 6, Path(f.name), "Урок 1 · v2")
+        method, kw = self.uploads[0]
+        self.assertEqual((method, kw["message_id"]), ("editMessageMedia", 6))
+        self.assertEqual(kw["media"]["media"], "attach://video")
+
     def test_too_big_video_is_refused(self):
         with tempfile.NamedTemporaryFile(suffix=".mp4") as f:
             f.truncate(51 * 1024 * 1024)
