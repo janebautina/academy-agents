@@ -55,20 +55,35 @@ def collect() -> int:
         if it is None or verdict not in ("yes", "no"):
             continue
         if str(q["from"]["id"]) != owner_id:  # someone else pressed: ignore
-            telegram.call("answerCallbackQuery", callback_query_id=q["id"], text="Только владелец может решать")
+            try:
+                telegram.call("answerCallbackQuery", callback_query_id=q["id"], text="Только владелец может решать")
+            except telegram.TelegramError:
+                pass
             continue
         if it["status"] == "pending":
             it["status"] = "approved" if verdict == "yes" else "rejected"
             it["answered_at"] = _now()
             n += 1
             journal.write("Владелец", f"{'да' if verdict == 'yes' else 'нет'}: {it['title']} ({it['agent']})")
-        telegram.call("answerCallbackQuery", callback_query_id=q["id"], text="Да" if verdict == "yes" else "Нет")
-        if it.get("message_id"):
-            telegram.call("editMessageReplyMarkup", chat_id=owner_id, message_id=it["message_id"],
-                          reply_markup={"inline_keyboard": [[{"text": "✓ Да" if verdict == "yes" else "✗ Нет",
-                                                              "callback_data": "noop"}]]})
+        data.save(FILE, items)  # the owner's answer is saved before anything else can fail
+        _acknowledge(q["id"], verdict, owner_id, it.get("message_id"))
     data.save(FILE, items)
     return n
+
+
+def _acknowledge(query_id: str, verdict: str, chat_id: str, message_id) -> None:
+    """Show the owner the answer was taken. Telegram refuses this for presses older than
+    a few minutes (the director runs every 30), which must not lose the answer itself."""
+    mark = "✓ Да" if verdict == "yes" else "✗ Нет"
+    calls = [("answerCallbackQuery", {"callback_query_id": query_id, "text": mark})]
+    if message_id:
+        calls.append(("editMessageReplyMarkup", {"chat_id": chat_id, "message_id": message_id,
+                                                  "reply_markup": {"inline_keyboard": [[{"text": mark, "callback_data": "noop"}]]}}))
+    for method, params in calls:
+        try:
+            telegram.call(method, **params)
+        except telegram.TelegramError:
+            pass
 
 
 def approved(agent: str) -> list[dict]:

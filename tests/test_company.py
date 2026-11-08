@@ -112,6 +112,20 @@ class ApprovalsTest(Base):
         approvals.done(item)
         self.assertEqual(approvals.approved("marketer"), [])
 
+    def test_old_press_is_still_recorded(self):
+        item = approvals.ask("director", "Тест")
+        self.press(f"yes:{item}")
+        real = self.tg
+
+        def old_query(method, **params):
+            if method == "answerCallbackQuery":
+                raise telegram.TelegramError("Bad Request: query is too old")
+            return real(method, **params)
+
+        with mock.patch.object(telegram, "_call", old_query):
+            approvals.collect()
+        self.assertEqual([a["id"] for a in approvals.approved("director")], [item])
+
     def test_no_and_strangers(self):
         item = approvals.ask("support", "Вернуть деньги")
         self.press(f"yes:{item}", user=999)  # not the owner
