@@ -4,3 +4,5 @@ __pycache__/
 *.pyc
 .DS_Store
 logs/
+company/journal.md
+reports/

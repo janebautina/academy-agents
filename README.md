@@ -10,7 +10,7 @@ are in the course; the code is open.
 
 | Lesson | Agent | Folder |
 |---|---|---|
-| 1 | Company charter + secretary (morning summary) | `agents/secretary/` |
+| 1 | Company charter + secretary (morning summary) | `agents/secretary/` · [урок / guide (RU)](docs/ru/lesson-01.md) |
 | 2 | CTO (coding agent) | — |
 | 3 | Marketer | — |
 | 4 | Sales | — |
@@ -26,3 +26,9 @@ are in the course; the code is open.
 All agents talk to an OpenAI-compatible API, so the model is one line in `.env`:
 OpenAI, DeepSeek, YandexGPT (Yandex AI Studio) and others. Copy `.env.example` to `.env`
 and fill in your own key. Never commit `.env`.
+
+## Start your own company
+
+1. **Use this template** › Private repository (your tasks and charter stay private).
+2. Follow [docs/ru/lesson-01.md](docs/ru/lesson-01.md): Python, `.env`, your charter (`templates/COMPANY-template.md`), first run.
+3. `python3 -m agents.secretary.run`

@@ -1,0 +1,4 @@
+# Ленты, за которыми следит секретарь. Формат: название, пробел, ссылка на RSS/Atom.
+# YouTube-канал: https://www.youtube.com/feeds/videos.xml?channel_id=<ID канала>
+Alesha_AI https://www.youtube.com/feeds/videos.xml?channel_id=UCsXOk3WMa3MjCXRCy2_R7Tg
+Хабр-AI https://habr.com/ru/rss/hub/artificial_intelligence/articles/
