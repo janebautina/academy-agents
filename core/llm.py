@@ -28,6 +28,8 @@ def chat(system: str, user: str, max_tokens: int = 1500) -> str:
         with urllib.request.urlopen(request, timeout=120) as response:
             answer = json.load(response)
     except urllib.error.HTTPError as e:
-        hint = {401: "the key is wrong", 402: "the balance is empty, top it up", 429: "too many requests, wait a minute"}
-        raise SystemExit(f"Model API error {e.code}: {hint.get(e.code, e.read().decode()[:300])}") from None
+        hint = {401: "неверный ключ / the key is wrong",
+                402: "на балансе нет денег, пополните / the balance is empty, top it up",
+                429: "слишком много запросов, подождите минуту / too many requests, wait a minute"}
+        raise SystemExit(f"Ошибка нейросети / Model API error {e.code}: {hint.get(e.code, e.read().decode()[:300])}") from None
     return answer["choices"][0]["message"]["content"].strip()

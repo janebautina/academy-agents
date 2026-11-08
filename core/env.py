@@ -30,5 +30,6 @@ def get(name: str, default: str = "") -> str:
 def need(name: str) -> str:
     value = get(name)
     if not value:
-        raise SystemExit(f"{name} is empty. Open the .env file and fill it in (see .env.example).")
+        raise SystemExit(f"{name} пустой: откройте файл .env и впишите значение (образец — .env.example).\n"
+                         f"{name} is empty: open the .env file and fill it in (see .env.example).")
     return value
