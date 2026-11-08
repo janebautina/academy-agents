@@ -12,7 +12,7 @@ import urllib.request
 from core import env
 
 
-def chat(system: str, user: str, max_tokens: int = 1500) -> str:
+def chat(system: str, user: str, max_tokens: int = 1500, json_mode: bool = False) -> str:
     base = env.need("LLM_BASE_URL").rstrip("/")
     body = {
         "model": env.need("LLM_MODEL"),
@@ -20,6 +20,8 @@ def chat(system: str, user: str, max_tokens: int = 1500) -> str:
         "max_tokens": max_tokens,
         "temperature": 0,
     }
+    if json_mode:  # ask for one JSON object instead of free text
+        body["response_format"] = {"type": "json_object"}
     headers = {"Authorization": f"Bearer {env.need('LLM_API_KEY')}", "Content-Type": "application/json"}
     if env.get("LLM_FOLDER_ID"):  # YandexGPT needs the Yandex Cloud folder id
         headers["OpenAI-Project"] = env.get("LLM_FOLDER_ID")
