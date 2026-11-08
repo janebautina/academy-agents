@@ -69,7 +69,12 @@ def draft(request: str) -> None:
     instructions = (HERE / "prompt.ru.md").read_text(encoding="utf-8")
     answer = llm.chat(instructions, f"{context()}\n\n=== ЗАДАЧА ВЛАДЕЛЬЦА ===\n{request}",
                       max_tokens=6000, json_mode=True)
-    plan = json.loads(answer)
+    try:
+        plan = json.loads(answer)
+    except json.JSONDecodeError:
+        print("Нейросеть ответила не в том формате. Повторите команду; если повторяется — смените модель в .env.")
+        journal.write("Технический директор", "ответ нейросети не в формате JSON, черновика нет")
+        return
     problems = check(plan)
     if problems:
         print("Черновик не сохранён, технический директор ошибся:")

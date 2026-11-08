@@ -4,6 +4,8 @@ A real one-person company run by AI agents: **Alesha AI Academy**.
 Every "employee" here is an agent: it sells the course, delivers access, answers students,
 counts the money and watches for outages. The owner approves anything risky.
 
+Full program: [docs/ru/PROGRAM.md](docs/ru/PROGRAM.md).
+
 This is the code of the paid course «AI для бизнеса: компания на AI-агентах» /
 "AI for Your Business: the Agentic Company". Lessons (video + line-by-line walkthrough)
 are in the course; the code is open.
@@ -11,7 +13,7 @@ are in the course; the code is open.
 | Lesson | Agent | Folder |
 |---|---|---|
 | 1 | Company charter + secretary (morning summary) | `agents/secretary/` · [урок / guide (RU)](docs/ru/lesson-01.md) |
-| 2 | CTO (writes new agents into drafts/, owner approves) | `agents/cto/` |
+| 2 | CTO (writes new agents into drafts/, owner approves) | `agents/cto/` · [урок / guide (RU)](docs/ru/lesson-02.md) |
 | 3 | Marketer | — |
 | 4 | Sales | — |
 | 5 | Access delivery (DonationAlerts → one-person Telegram link by email) | `agents/delivery/` |
