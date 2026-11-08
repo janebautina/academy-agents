@@ -11,10 +11,10 @@ are in the course; the code is open.
 | Lesson | Agent | Folder |
 |---|---|---|
 | 1 | Company charter + secretary (morning summary) | `agents/secretary/` · [урок / guide (RU)](docs/ru/lesson-01.md) |
-| 2 | CTO (coding agent) | — |
+| 2 | CTO (writes new agents into drafts/, owner approves) | `agents/cto/` |
 | 3 | Marketer | — |
 | 4 | Sales | — |
-| 5 | Access delivery | — |
+| 5 | Access delivery (DonationAlerts → one-person Telegram link by email) | `agents/delivery/` |
 | 6 | Support | — |
 | 7 | Accountant | — |
 | 8 | On-call engineer | — |
@@ -32,3 +32,8 @@ and fill in your own key. Never commit `.env`.
 1. **Use this template** › Private repository (your tasks and charter stay private).
 2. Follow [docs/ru/lesson-01.md](docs/ru/lesson-01.md): Python, `.env`, your charter (`templates/COMPANY-template.md`), first run.
 3. `python3 -m agents.secretary.run`
+
+## Tests
+
+`python3 -m unittest discover tests` — no packages to install. Telegram, DonationAlerts and email
+are faked at the network boundary; the rest is the real code. CI runs them on Python 3.9 and 3.12.
