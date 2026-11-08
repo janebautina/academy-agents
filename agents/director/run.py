@@ -93,7 +93,9 @@ def one_pass() -> list[str]:
 def show_team() -> None:
     state = data.load("director.json", {"last_run": {}})
     for a in team():
-        print(f"{a['title']:<22} {a['name']:<16} {a['when']:<16} последний запуск: {state['last_run'].get(a['name'], '—')}")
+        last = state["last_run"].get(a["name"])
+        shown = datetime.fromisoformat(last).strftime("%d.%m %H:%M") if last else "—"
+        print(f"{a['title']:<22} {a['name']:<16} {a['when']:<16} последний запуск: {shown}")
     waiting = approvals.pending()
     print(f"\nЖдут вашего «да»: {len(waiting)}" + "".join(f"\n  · {w['agent']}: {w['title']}" for w in waiting))
     print(f"Задачи в очереди: {len(queue.peek())}")
