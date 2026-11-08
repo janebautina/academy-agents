@@ -14,6 +14,7 @@ from __future__ import annotations
 import getpass
 import json
 import re
+import urllib.error
 import urllib.parse
 import urllib.request
 import webbrowser
@@ -40,12 +41,24 @@ def main() -> None:
         {"client_id": client_id, "redirect_uri": REDIRECT, "response_type": "code", "scope": SCOPE})
     print("\nОткрываю страницу разрешения. Нажмите Allow, потом скопируйте адрес страницы, куда вас перенесло.")
     webbrowser.open(url)
-    back = input("\nАдрес страницы (с ?code=...): ").strip()
-    code = urllib.parse.parse_qs(urllib.parse.urlparse(back).query).get("code", [back])[0]
+    code = ""
+    while not code:
+        back = input("\nАдрес страницы после Allow (начинается с https://aleshaai.com/?code=): ").strip()
+        code = urllib.parse.parse_qs(urllib.parse.urlparse(back).query).get("code", [""])[0]
+        if not code:
+            print("В этом адресе нет code=. Это ещё страница DonationAlerts: нажмите Allow (Разрешить),\n"
+                  "дождитесь, пока откроется aleshaai.com, и скопируйте адрес оттуда.\n"
+                  f"Страница разрешения: {url}")
     body = urllib.parse.urlencode({"grant_type": "authorization_code", "client_id": client_id, "client_secret": secret,
                                    "redirect_uri": REDIRECT, "code": code}).encode()
-    with urllib.request.urlopen(urllib.request.Request("https://www.donationalerts.com/oauth/token", data=body), timeout=30) as r:
-        token = json.load(r)
+    try:
+        with urllib.request.urlopen(urllib.request.Request("https://www.donationalerts.com/oauth/token", data=body), timeout=30) as r:
+            token = json.load(r)
+    except urllib.error.HTTPError as e:
+        detail = e.read().decode()[:300]
+        raise SystemExit(f"DonationAlerts не выдал ключ ({e.code}): {detail}\n"
+                         "Проверьте App ID и API Key и что Redirect URL в приложении ровно https://aleshaai.com/ . "
+                         "Код из адреса одноразовый — запустите команду заново.") from None
     save_env("DA_ACCESS_TOKEN", token["access_token"])
     save_env("DA_REFRESH_TOKEN", token.get("refresh_token", ""))
     days = int(token.get("expires_in", 0)) // 86400
