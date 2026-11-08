@@ -1,0 +1,9 @@
+{
+  "comment": "Штатное расписание: кто из агентов когда работает. when: \"daily 08:00\", \"weekly mon 09:00\", \"every 30m\" или \"manual\" (только по команде). Время — по часовому поясу COMPANY_UTC_OFFSET (по умолчанию Москва, +3).",
+  "agents": [
+    {"name": "secretary", "title": "Секретарь", "when": "daily 08:00"},
+    {"name": "daily_review", "title": "Итоги дня", "when": "daily 21:00"},
+    {"name": "delivery", "title": "Выдача доступа", "when": "every 30m"},
+    {"name": "cto", "title": "Технический директор", "when": "manual"}
+  ]
+}

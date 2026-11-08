@@ -1,0 +1,48 @@
+# The whole company in GitHub's cloud: the director runs every 30 minutes and starts every agent
+# whose time has come (company/team.json). Your computer can be off.
+# Repository secrets: LLM_API_KEY, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID (+ the delivery ones from lesson 5).
+# In a PRIVATE copy the company's state (approvals, schedule, journal) is saved back into the repository;
+# in a public one nothing is saved, so keep your own copy private.
+name: Company
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: company
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  director:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      LLM_BASE_URL: ${{ vars.LLM_BASE_URL || 'https://api.deepseek.com' }}
+      LLM_MODEL: ${{ vars.LLM_MODEL || 'deepseek-chat' }}
+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+      LLM_FOLDER_ID: ${{ vars.LLM_FOLDER_ID }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      COMPANY_LANGUAGE: ${{ vars.COMPANY_LANGUAGE || 'ru' }}
+      COMPANY_UTC_OFFSET: ${{ vars.COMPANY_UTC_OFFSET || '3' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Director
+        run: |
+          if [ -z "$LLM_API_KEY" ]; then echo "LLM_API_KEY secret is not set, skipping"; exit 0; fi
+          python -m agents.director.run
+      - name: Save the company's state (private repositories only)
+        if: always() && github.event.repository.private
+        run: |
+          git config user.name "company-director"
+          git config user.email "director@users.noreply.github.com"
+          git add -f data company/journal.md company/team.json 2>/dev/null || true
+          git diff --cached --quiet || { git commit -qm "company state $(date -u +%FT%TZ)"; git push -q; }

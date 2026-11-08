@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import ast
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -26,7 +27,7 @@ FORBIDDEN_CALLS = {"unlink", "rmdir", "rmtree", "remove", "system", "popen", "ev
 
 def context() -> str:
     parts = [f"=== УСТАВ ===\n{(ROOT / 'company' / 'COMPANY.md').read_text(encoding='utf-8')}"]
-    for f in ["core/env.py", "core/llm.py", "core/telegram.py", "core/journal.py",
+    for f in ["core/env.py", "core/llm.py", "core/telegram.py", "core/journal.py", "core/approvals.py", "core/queue.py",
               "agents/secretary/run.py", "agents/secretary/sources.py"]:
         parts.append(f"=== {f} ===\n{(ROOT / f).read_text(encoding='utf-8')}")
     existing = sorted(p.name for p in (ROOT / "agents").iterdir() if p.is_dir() and not p.name.startswith("_"))
@@ -89,6 +90,8 @@ def draft(request: str) -> None:
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(f["content"], encoding="utf-8")
     (target / "__init__.py").touch()
+    (target / "agent.json").write_text(json.dumps({"title": plan.get("title", plan["name"]), "when": plan.get("when", "manual")},
+                                                  ensure_ascii=False), encoding="utf-8")
     print(f"Черновик: {plan['title']}  →  drafts/{plan['name']}/\n")
     print(plan["summary"], "\n")
     for f in plan["files"]:
@@ -100,6 +103,22 @@ def draft(request: str) -> None:
     journal.write("Технический директор", f"написал черновик «{plan['title']}» (drafts/{plan['name']})")
 
 
+def team_path() -> Path:
+    return Path(env.get("TEAM_FILE") or ROOT / "company" / "team.json")
+
+
+def hire(name: str, title: str, when: str) -> str:
+    """Put the new agent into the company schedule, so the director runs it with everyone else."""
+    if not re.fullmatch(r"manual|every \d+m|daily \d\d:\d\d|weekly (mon|tue|wed|thu|fri|sat|sun) \d\d:\d\d", when):
+        when = "manual"  # an odd schedule from the model: the owner sets it in company/team.json
+    path = team_path()
+    team = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"agents": []}
+    if not any(a["name"] == name for a in team["agents"]):
+        team["agents"].append({"name": name, "title": title, "when": when})
+        path.write_text(json.dumps(team, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return when
+
+
 def approve(name: str) -> None:
     src, dst = DRAFTS / name, ROOT / "agents" / name
     if not src.is_dir():
@@ -109,7 +128,9 @@ def approve(name: str) -> None:
     for py in src.rglob("*.py"):  # drafts run as drafts.<name>; in the company they run as agents.<name>
         py.write_text(py.read_text(encoding="utf-8").replace(f"drafts.{name}", f"agents.{name}"), encoding="utf-8")
     shutil.move(str(src), str(dst))
-    print(f"Принят: agents/{name}/  ·  запуск: python3 -m agents.{name}.run")
+    meta = json.loads((dst / "agent.json").read_text(encoding="utf-8")) if (dst / "agent.json").exists() else {}
+    when = hire(name, meta.get("title", name), meta.get("when", "manual"))
+    print(f"Принят: agents/{name}/  ·  запуск: python3 -m agents.{name}.run  ·  в штатном расписании: {when}")
     journal.write("Владелец", f"принял агента {name} в компанию")
 
 

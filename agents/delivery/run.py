@@ -20,12 +20,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from agents.delivery import donations, letters
-from core import env, journal, mailer, telegram
+from core import data, env, journal, mailer, telegram, updates
 from core.env import ROOT
 
 
 def state_path() -> Path:
-    return Path(env.get("DELIVERY_STATE") or ROOT / "data" / "delivery.json")
+    return Path(env.get("DELIVERY_STATE") or data.path("delivery.json"))
 
 
 def load() -> dict:
@@ -108,10 +108,9 @@ def new_payments(state: dict, dry: bool) -> int:
 
 def track_joins(state: dict) -> None:
     """Who joined the channel with which link: needed to remove exactly that person on a refund."""
-    answer = telegram.call("getUpdates", offset=state.get("offset", 0), allowed_updates=["chat_member"], timeout=0)
+    updates.fetch()  # one shared inbox: other agents need their updates too
     by_name = {f"donation {b['donation_id']}": b for b in state.get("buyers", [])}
-    for u in answer.get("result", []):
-        state["offset"] = u["update_id"] + 1
+    for u in updates.take("chat_member"):
         m = u.get("chat_member")
         if not m or m["new_chat_member"]["status"] != "member":
             continue

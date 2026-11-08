@@ -1,11 +1,14 @@
 """The company journal: one line per thing an agent did, so the owner can always check."""
 from __future__ import annotations
 
+import os
 from datetime import datetime
+from pathlib import Path
 
 from core.env import ROOT
 
-JOURNAL = ROOT / "company" / "journal.md"
+# JOURNAL_FILE moves the journal next to the company's private data (e.g. in GitHub Actions)
+JOURNAL = Path(os.environ.get("JOURNAL_FILE") or ROOT / "company" / "journal.md")
 
 
 def write(agent: str, what: str) -> None:

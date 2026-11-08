@@ -84,7 +84,7 @@ class DeliveryTest(unittest.TestCase):
         tmp = Path(self.tmp.name)
         self.state = tmp / "delivery.json"
         self.world = FakeWorld()
-        env = {"DELIVERY_STATE": str(self.state), "TELEGRAM_BOT_TOKEN": "x", "TELEGRAM_CHAT_ID": "1",
+        env = {"DELIVERY_STATE": str(self.state), "DATA_DIR": str(tmp / "data"), "TELEGRAM_BOT_TOKEN": "x", "TELEGRAM_CHAT_ID": "1",
                "COURSE_CHANNEL_RU": "-100111", "MAIL_FROM": "Academy <support@aleshaai.com>", "DA_ACCESS_TOKEN": "t"}
         for p in [mock.patch.dict(os.environ, env), mock.patch.object(telegram, "_call", self.world.tg),
                   mock.patch.object(mailer, "send", self.world.mail), mock.patch.object(journal, "JOURNAL", tmp / "journal.md"),
