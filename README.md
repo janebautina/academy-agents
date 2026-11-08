@@ -14,7 +14,7 @@ are in the course; the code is open.
 |---|---|---|
 | 1 | Company charter + secretary (morning summary) | `agents/secretary/` · [урок / guide (RU)](docs/ru/lesson-01.md) |
 | 2 | CTO (writes new agents into drafts/, owner approves) | `agents/cto/` · [урок / guide (RU)](docs/ru/lesson-02.md) |
-| 3 | Marketer | — |
+| 3 | Marketer (week of posts, owner's «да» buttons, publishes on the day) | `agents/marketer/` |
 | 4 | Sales | — |
 | 5 | Access delivery (DonationAlerts → one-person Telegram link by email) | `agents/delivery/` |
 | 6 | Support | — |

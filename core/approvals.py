@@ -98,5 +98,10 @@ def done(item_id: str) -> None:
     data.save(FILE, items)
 
 
+def status(item_id: str) -> str:
+    """pending, approved, rejected or done; "" if there is no such request."""
+    return next((it["status"] for it in data.load(FILE, []) if it["id"] == item_id), "")
+
+
 def pending() -> list[dict]:
     return [it for it in data.load(FILE, []) if it["status"] == "pending"]

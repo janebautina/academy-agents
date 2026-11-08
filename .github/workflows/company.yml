@@ -28,6 +28,7 @@ jobs:
       LLM_FOLDER_ID: ${{ vars.LLM_FOLDER_ID }}
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      MARKETING_CHANNEL: ${{ vars.MARKETING_CHANNEL }}
       COMPANY_LANGUAGE: ${{ vars.COMPANY_LANGUAGE || 'ru' }}
       COMPANY_UTC_OFFSET: ${{ vars.COMPANY_UTC_OFFSET || '3' }}
     steps:

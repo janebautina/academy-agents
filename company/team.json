@@ -3,6 +3,7 @@
   "agents": [
     {"name": "secretary", "title": "Секретарь", "when": "daily 08:00"},
     {"name": "daily_review", "title": "Итоги дня", "when": "daily 21:00"},
+    {"name": "marketer", "title": "Маркетолог", "when": "every 30m"},
     {"name": "delivery", "title": "Выдача доступа", "when": "every 30m"},
     {"name": "cto", "title": "Технический директор", "when": "manual"}
   ]
