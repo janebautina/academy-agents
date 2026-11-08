@@ -63,11 +63,17 @@
    python3 --version
    ```
 3. Если видите `Python 3.9` или новее — всё готово, переходите к шагу 3.
+
+   ![Проверка версии Python в Терминале](img/lesson-01/install-python-00.jpg)
+
    Если Mac предложит установить «инструменты командной строки» — нажмите «Установить» и дождитесь конца, затем повторите команду.
 
 ### Windows
 
 1. Откройте https://www.python.org/downloads/ и нажмите жёлтую кнопку **Download Python**.
+
+   ![python.org: 1 — скачать, 2 — версия для Windows](img/lesson-01/install-python-01.jpg)
+
 2. Запустите скачанный файл. **Важно:** внизу первого окна поставьте галочку **Add python.exe to PATH**. Потом **Install Now**.
 3. Откройте **PowerShell**: меню Пуск › напишите «PowerShell» › Enter.
 4. Напишите:
@@ -94,13 +100,28 @@
 
 **Способ без регистрации:**
 1. Откройте ссылку, нажмите зелёную кнопку **Code** › **Download ZIP**.
+
+   ![GitHub: 1 — Code, 2 — Download ZIP](img/lesson-01/download-the-code-00.jpg)
+
 2. Распакуйте архив в домашнюю папку (на Mac — папка с вашим именем, на Windows — `C:\Users\<имя>`).
 3. Переименуйте папку `academy-agents-main` в `my-company`.
+
+   ![Папка компании в Finder](img/lesson-01/download-the-code-01.jpg)
+
 
 **Способ для своей копии на GitHub (нужен для запуска в облаке, шаг 10, вариант В):**
 1. Зарегистрируйтесь на github.com.
 2. На странице репозитория нажмите **Use this template** › **Create a new repository**.
 3. Название: `my-company`. Выберите **Private** — ваши задачи и устав увидите только вы.
+
+   ![Название репозитория](img/lesson-01/your-private-copy-00.jpg)
+
+
+   ![Выбор Private](img/lesson-01/your-private-copy-01.jpg)
+
+
+   ![1 — Private, 2 — Create repository](img/lesson-01/your-private-copy-02.jpg)
+
 
 Перейдите в папку в терминале:
 ```
@@ -140,8 +161,17 @@ my-company/
 
 ### Вариант 1. DeepSeek (дёшево, используем в уроках)
 1. https://platform.deepseek.com › войти (почта или Google).
-2. **Top up** › пополнить на $2–5. Из России напрямую карты РФ обычно не проходят; можно через cloud.ru (DeepSeek в рублях) или вариант 2.
+2. **Top up** › пополнить на $2–5.
+
+   ![DeepSeek Top up: 1 — сумма, 2 — способ оплаты, 3 — Next step](img/lesson-01/the-deepseek-key-00.jpg)
+ Из России напрямую карты РФ обычно не проходят; можно через cloud.ru (DeepSeek в рублях) или вариант 2.
 3. **API keys** › **Create new API key** › название `my-company` › **Copy**. Ключ показывают один раз.
+
+   ![DeepSeek: 1 — API keys, 2 — Create new API key](img/lesson-01/the-deepseek-key-01.jpg)
+
+
+   ![1 — название ключа, 2 — Create API key](img/lesson-01/the-deepseek-key-02.jpg)
+
 
 ### Вариант 2. YandexGPT (оплата в рублях)
 1. https://console.yandex.cloud › войти с Яндекс ID › создать платёжный аккаунт › открыть сервис **AI Studio**. (Подробная инструкция со скриншотами — в видео урока.)
@@ -152,6 +182,12 @@ my-company/
 1. В папке `my-company` сделайте копию файла `.env.example` и назовите её `.env` (с точкой в начале).
    - Mac: в терминале `cp .env.example .env`, потом `open -e .env`.
    - Windows: `copy .env.example .env`, потом `notepad .env`.
+
+   ![Без файла .env секретарь подсказывает, что делать](img/lesson-01/the-settings-file-00.jpg)
+
+
+   ![Копия образца и скрытый файл .env](img/lesson-01/the-settings-file-01.jpg)
+
 2. Вставьте ключ после `LLM_API_KEY=` без пробелов и кавычек:
    ```
    LLM_API_KEY=sk-ваш-ключ
@@ -164,6 +200,9 @@ my-company/
    ```
 4. Сохраните файл.
 
+   ![Строка LLM_API_KEY в файле .env (ключ закрыт точками)](img/lesson-01/the-settings-file-02.jpg)
+
+
 > **Безопасность.** Файл `.env` — как ключи от сейфа. Никому не отправляйте, не выкладывайте в интернет и не вставляйте в чаты. Он уже в списке исключений `.gitignore`, поэтому на GitHub не попадёт. Если ключ утёк — удалите его на сайте и создайте новый.
 
 ---
@@ -174,6 +213,12 @@ my-company/
 
 1. Скопируйте `templates/COMPANY-template.md` поверх `company/COMPANY.md` (там сейчас устав нашей школы — оставьте его как образец в другом файле, если хотите).
 2. Заполните шесть разделов. Подсказки — прямо в файле.
+
+   ![Шаблон устава с подсказками](img/lesson-01/your-charter-00.jpg)
+
+
+   ![Главная колонка: что только с вашего «да»](img/lesson-01/your-charter-01.jpg)
+
 
 ### Как написать хороший устав: три примера
 
@@ -233,11 +278,17 @@ python3 -m agents.secretary.run --dry-run
 ```
 Вы увидите всё, что секретарь отправит нейросети: дату, устав, задачи, новое из лент, журнал. Это бесплатно. Проверьте: задачи на месте, ленты читаются.
 
+![Пробный запуск --dry-run](img/lesson-01/first-run-00.jpg)
+
+
 ### Шаг 2. Настоящий запуск
 ```
 python3 -m agents.secretary.run
 ```
 Через 5–15 секунд на экране появится сводка:
+
+![Настоящая сводка](img/lesson-01/first-run-01.jpg)
+
 ```
 **Утренняя сводка · 8 ноября 2026**
 
@@ -250,6 +301,9 @@ python3 -m agents.secretary.run
 ```
 - 2026-11-08 08:00 · Секретарь · утренняя сводка › reports/2026-11-08-secretary.md
 ```
+
+![Журнал компании](img/lesson-01/first-run-02.jpg)
+
 
 ### Шаг 3. Проверьте сводку
 Агент знает только то, что ему дали. Сравните сводку с данными из шага 1:
@@ -381,6 +435,9 @@ def main() -> None:
 1. В Telegram найдите **@BotFather** (с синей галочкой) › **Start** › отправьте `/newbot`.
 2. Имя бота: например, «Секретарь Кофейни». Адрес: латиницей, в конце `bot`, например `coffee_secretary_bot`.
 3. BotFather пришлёт **токен** вида `7712345678:AAH...`. Это пароль бота — храните как API-ключ.
+
+   ![BotFather: 1 — /newbot, 2 — имя, 3 — адрес, 4 — токен (закрыт)](img/lesson-01/telegram-bot-00.jpg)
+
 4. Вставьте в `.env`:
    ```
    TELEGRAM_BOT_TOKEN=7712345678:AAH...
@@ -391,7 +448,16 @@ def main() -> None:
    python3 -m core.telegram
    ```
    Появится строка `TELEGRAM_CHAT_ID=123456789 (ваше имя)`. Скопируйте её в `.env`.
+
+   ![Номер чата (закрыт точками)](img/lesson-01/telegram-bot-01.jpg)
+
 7. Запустите секретаря ещё раз — сводка придёт в Telegram.
+
+   ![Журнал: сводка ушла в Telegram](img/lesson-01/telegram-bot-02.jpg)
+
+
+   ![Сводка в Telegram: сверху без жирного шрифта, снизу после исправления](img/lesson-01/telegram-bot-03.jpg)
+
 
 ---
 
@@ -422,8 +488,14 @@ def main() -> None:
    - `LLM_API_KEY` — ключ нейросети;
    - `TELEGRAM_BOT_TOKEN` — токен бота;
    - `TELEGRAM_CHAT_ID` — ваш chat id.
+
+   ![GitHub: 1 — Name, 2 — Secret, 3 — Add secret](img/lesson-01/every-morning-in-the-clo-00.jpg)
+
 2. Для YandexGPT на вкладке **Variables** добавьте `LLM_BASE_URL`, `LLM_MODEL`, `LLM_FOLDER_ID`.
 3. Вкладка **Actions** › **Secretary** › **Run workflow** — проверочный запуск. Через минуту сводка придёт в Telegram.
+
+   ![Кнопка Run workflow](img/lesson-01/every-morning-in-the-clo-01.jpg)
+
 4. Дальше она будет приходить каждый день в 8:00 по Москве. Время меняется в файле `.github/workflows/secretary.yml`, строка `cron: "0 5 * * *"` (время по Гринвичу: Москва минус 3 часа).
 
 Для приватных репозиториев GitHub даёт 2 000 бесплатных минут в месяц. Один запуск секретаря — меньше минуты.
@@ -433,6 +505,10 @@ def main() -> None:
 ---
 
 ## 11. Если что-то не работает
+
+![Нет файла .env](img/lesson-01/if-something-breaks-00.jpg)
+
+![Неверный ключ](img/lesson-01/if-something-breaks-01.jpg)
 
 | Что видите | Что значит | Что сделать |
 |---|---|---|
