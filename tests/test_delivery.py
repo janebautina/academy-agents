@@ -3,6 +3,7 @@ boundary; everything else (parsing, rules, state, journal) is the real code.
 
     python3 -m unittest discover tests
 """
+import io
 import json
 import os
 import tempfile
@@ -88,7 +89,8 @@ class DeliveryTest(unittest.TestCase):
         for p in [mock.patch.dict(os.environ, env), mock.patch.object(telegram, "_call", self.world.tg),
                   mock.patch.object(mailer, "send", self.world.mail), mock.patch.object(journal, "JOURNAL", tmp / "journal.md"),
                   mock.patch.object(donations, "fetch", lambda: list(self.world.donations)),
-                  mock.patch.object(delivery.env, "load", lambda: None), mock.patch("sys.argv", ["run"])]:
+                  mock.patch.object(delivery.env, "load", lambda: None), mock.patch("sys.argv", ["run"]),
+                  mock.patch("sys.stdout", io.StringIO())]:  # the agent prints for the owner; keep test output clean
             p.start()
             self.addCleanup(p.stop)
         delivery.main()  # first run: remembers "since", delivers nothing old

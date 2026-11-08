@@ -1,4 +1,5 @@
 """Channel setup and posting: Telegram is faked, the rules are real."""
+import io
 import os
 import tempfile
 import unittest
@@ -27,7 +28,8 @@ class ChannelTest(unittest.TestCase):
         self.uploads = []
         for p in [mock.patch.dict(os.environ, {"TELEGRAM_BOT_TOKEN": "x", "COURSE_CHANNEL_RU": "-100111"}),
                   mock.patch.object(telegram, "_call", tg),
-                  mock.patch.object(telegram, "upload", lambda m, f, path, **kw: self.uploads.append((m, kw)))]:
+                  mock.patch.object(telegram, "upload", lambda m, f, path, **kw: self.uploads.append((m, kw))),
+                  mock.patch("sys.stdout", io.StringIO())]:
             p.start()
             self.addCleanup(p.stop)
 
