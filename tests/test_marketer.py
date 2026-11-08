@@ -86,6 +86,13 @@ class MarketerTest(unittest.TestCase):
         self.assertEqual(self.to_channel(), ["Пост про секретаря"])
         self.assertEqual(approvals.approved("marketer"), [])
 
+    def test_now_publishes_an_approved_post_before_its_day(self):
+        marketer.main()
+        self.answer("Кнопка «да»", "yes")
+        with mock.patch("sys.argv", ["run", "--now"]):
+            marketer.main()
+        self.assertEqual(self.to_channel(), ["Пост про кнопку"])  # only the approved one, not the waiting ones
+
     def test_rejected_post_never_goes_out_and_the_model_learns(self):
         marketer.main()
         self.answer("Устав за 10 минут", "no")
@@ -111,9 +118,10 @@ class MarketerTest(unittest.TestCase):
         state = data.load(marketer.FILE, {})
         self.assertEqual(state["week"], "2026-W46")
         self.assertEqual([p["date"] for p in state["posts"]], ["2026-11-09", "2026-11-11", "2026-11-13"])
+        marketer.main()  # the director's next run the same Sunday
         self.now = MONDAY
         marketer.main()
-        self.assertEqual(len(self.prompts), 1)  # Monday does not plan the same week again
+        self.assertEqual(len(self.prompts), 1)  # neither Sunday nor Monday plans the same week again
 
     def test_no_channel_warns_once(self):
         marketer.main()

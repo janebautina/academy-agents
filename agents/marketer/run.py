@@ -4,6 +4,7 @@
     python3 -m agents.marketer.run --plan      # plan the week now, even if this week already has a plan
     python3 -m agents.marketer.run --dry-run   # only print what the model would receive
     python3 -m agents.marketer.run --status    # the content plan: what waits, what is approved, what is out
+    python3 -m agents.marketer.run --now       # publish what the owner approved right now, without waiting for its day
 
 Every draft comes to the owner in Telegram with «Да / Нет» buttons. «Да»: the post goes out on its
 day to MARKETING_CHANNEL. «Нет»: it is dropped. Brand voice, topics and rules: company/marketing.md.
@@ -33,6 +34,11 @@ def week_of(day: date) -> str:
     return f"{year}-W{week:02d}"
 
 
+def plan_start(today: date) -> date:
+    """The first day the plan covers: today on weekdays, next Monday at the weekend."""
+    return today if today.weekday() < 5 else today + timedelta(days=7 - today.weekday())
+
+
 def build_input(state: dict, today: date) -> str:
     charter = (ROOT / "company" / "COMPANY.md").read_text(encoding="utf-8")
     marketing = (ROOT / "company" / "marketing.md").read_text(encoding="utf-8")
@@ -59,7 +65,7 @@ def plan(state: dict, today: date) -> list[dict]:
         week = json.loads(answer)
     except json.JSONDecodeError:
         raise SystemExit("Нейросеть ответила не в формате JSON. Запустите ещё раз с --plan.")
-    start = today if today.weekday() < 5 else today + timedelta(days=7 - today.weekday())  # at the weekend: next week
+    start = plan_start(today)
     monday = start - timedelta(days=start.weekday())
     new = []
     for p in week.get("posts", []):
@@ -112,9 +118,9 @@ def sync(state: dict) -> None:
                 journal.write("Маркетолог", f"пост отклонён: {post['topic']}")
 
 
-def publish(state: dict, today: date) -> int:
-    """Publish approved posts whose day has come. Returns how many went out."""
-    due = [p for p in state["posts"] if p["status"] == "approved" and p["date"] <= today.isoformat()]
+def publish(state: dict, today: date, any_day: bool = False) -> int:
+    """Publish approved posts whose day has come (any_day: all approved ones). Returns how many went out."""
+    due = [p for p in state["posts"] if p["status"] == "approved" and (any_day or p["date"] <= today.isoformat())]
     if not due:
         return 0
     channel = env.get("MARKETING_CHANNEL")
@@ -156,9 +162,9 @@ def main() -> None:
         show(state)
         return
     sync(state)
-    out = publish(state, today)
+    out = publish(state, today, any_day="--now" in sys.argv)
     planned = []
-    if "--plan" in sys.argv or (state["week"] != week_of(today) and now.hour >= PLAN_HOUR):
+    if "--plan" in sys.argv or (state["week"] < week_of(plan_start(today)) and now.hour >= PLAN_HOUR):
         planned = plan(state, today)
     data.save(FILE, state)
     print(f"Опубликовано: {out}. Новых постов в плане: {len(planned)}.")

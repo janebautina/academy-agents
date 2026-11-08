@@ -23,3 +23,4 @@ Rules:
 - One short. It is a script for the owner, it is never published on its own.
 - At most two hashtags at the end of a post. **Bold** is fine for the main point.
 - Write in the company's language, friendly and plain.
+- No @handles: in Telegram «@something» links to someone else's account. Write links in full, exactly as in the marketing file.
